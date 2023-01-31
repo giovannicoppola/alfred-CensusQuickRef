@@ -10,7 +10,7 @@ import sqlite3
 from config import INDEX_DB, log
 
 # reading the 2020 file in SAS format from the CDC website
-allData = pd.read_sas('/Users/giovanni/gDrive/GitHub repos/alfred-CensusQuickRef/bigFiles/pcen_v2020_y20.sas7bdat')
+allData = pd.read_sas('../bigFiles/pcen_v2020_y20.sas7bdat')
 print(allData.head(20))
 print(allData.info())
 print (allData.nunique())
@@ -26,22 +26,50 @@ print(myCounties.head(20))
 print(myCounties.info())
 print (myCounties.nunique())
 
+fips = pd.read_csv ('../fips_states.csv')
+fips_counties = pd.read_csv ('../fips_counties.csv')
+print(fips.head(20))
+print(fips.info())
+
+#bool = fips_counties['fips'].duplicated().any()
+#print (f'duplicated result: {bool}')
+
+allData.drop(['VINTAGE', 'YEAR','MONTH'], axis=1)     
+
+#allData = allData.astype({'ST_FIPS':'string'})
+
+def join_numbers(A, B):
+    result = []
+    for i in range(len(A)):
+        a = str(A[i])
+        b = str(B[i]).zfill(3)
+        result.append(a + b)
+    return result
+
+allData = allData.astype({'ST_FIPS':'int'})
+allData = allData.astype({'CO_FIPS':'int'})
+
+allData['fullFIPS']= join_numbers(allData['ST_FIPS'],allData['CO_FIPS'])
+allData = allData.astype({'fullFIPS':'int'})
 
 
-by_state = allData.groupby(['age','ST_FIPS','CO_FIPS','hisp', 'RACESEX'], as_index = False)['pop'].sum()
-print(by_state.head(20))
-print (by_state.nunique())
+#fips = fips.astype({'state':'string'})
+
+allData['StateName'] = allData['ST_FIPS'].map(fips.set_index('fips')['state'])
+allData['CountyName'] = allData['fullFIPS'].map(fips_counties.set_index('fips')['county_name'])
+
+print(allData.head(20))
+
+# by_state = allData.groupby(['age','ST_FIPS','CO_FIPS','hisp', 'RACESEX'], as_index = False)['pop'].sum()
+# print(by_state.head(20))
+# print (by_state.nunique())
 
 
 con = sqlite3.connect(INDEX_DB)
 c = con.cursor()
 c.execute ("DROP TABLE IF EXISTS alldata")
-allData.drop(['VINTAGE', 'YEAR','MONTH'], axis=1)     
 
-allData = allData.astype({'ST_FIPS':'string'})
-allData['ST_FIPS'] = allData['ST_FIPS'].replace('6.0','California')
-
-pivot_table = allData.pivot(index = ['age','ST_FIPS','CO_FIPS'], columns=['hisp', 'RACESEX'], values='pop')
+pivot_table = allData.pivot(index = ['age','StateName','CountyName','fullFIPS'], columns=['hisp', 'RACESEX'], values='pop')
 #pivot_table['ColName'] = pivot_table.index()
 print(pivot_table.head(20))
 
