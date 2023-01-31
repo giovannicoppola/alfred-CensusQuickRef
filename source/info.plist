@@ -47,20 +47,20 @@
 				<string>export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 myQuery="$1"
 
-if [[ ${#myQuery} -gt 1 ]]
-then
+#if [[ ${#myQuery} -gt 1 ]]
+#then
 	python3 quickCensus-query.py "$1"
-else
-cat &lt;&lt; EOB
-	{"items": [
-		{
-			"title": "❗Enter 2 characters at least",
-			"subtitle": "length: ${#myQuery} (${myQuery})"
-
-			}
-]}
-EOB
-fi
+#else
+#cat &lt;&lt; EOB
+#	{"items": [
+#		{
+#			"title": "❗Enter 2 characters at least",
+#			"subtitle": "length: ${#myQuery} (${myQuery})"
+#
+#			}
+# ]}
+# EOB
+# fi
 
 </string>
 				<key>scriptargtype</key>

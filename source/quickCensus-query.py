@@ -32,7 +32,7 @@ def queryCensus ():
   
     try:
         cursor.execute("""SELECT *
-        FROM alldata
+        FROM pivot
         WHERE ST_FIPS    LIKE ?""", (MYQUERY,))
         
         rs = cursor.fetchall()
@@ -64,7 +64,7 @@ def queryCensus ():
             #### COMPILING OUTPUT    
             result["items"].append({
             "title": r[5],
-            "subtitle": f"{countR}/{myResLen:,} - subtitleString",
+            "subtitle": f"{countR}/{myResLen:,} - tot counties: {totCounties}",
             
             "variables": {
             },

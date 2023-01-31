@@ -32,8 +32,6 @@ by_state = allData.groupby(['age','ST_FIPS','CO_FIPS','hisp', 'RACESEX'], as_ind
 print(by_state.head(20))
 print (by_state.nunique())
 
-pivot_table = by_state.pivot(index = ['age','ST_FIPS','CO_FIPS'], columns=['hisp', 'RACESEX'], values='pop')
-print(pivot_table.head(20))
 
 con = sqlite3.connect(INDEX_DB)
 c = con.cursor()
@@ -43,21 +41,24 @@ allData.drop(['VINTAGE', 'YEAR','MONTH'], axis=1)
 allData = allData.astype({'ST_FIPS':'string'})
 allData['ST_FIPS'] = allData['ST_FIPS'].replace('6.0','California')
 
-
-allData['key'] = range(1, len(allData.index)+1)
-
-drop_statement = f"DROP TABLE IF EXISTS alldata"
-allData.to_sql("alldata", con, index=False) 
+pivot_table = allData.pivot(index = ['age','ST_FIPS','CO_FIPS'], columns=['hisp', 'RACESEX'], values='pop')
+#pivot_table['ColName'] = pivot_table.index()
+print(pivot_table.head(20))
 
 
+# allData['key'] = range(1, len(allData.index)+1)
+# drop_statement = f"DROP TABLE IF EXISTS alldata"
+# allData.to_sql("alldata", con, index=False) 
 
-c.execute ("DROP TABLE IF EXISTS state")
-by_state['key'] = range(1, len(by_state.index)+1)
-by_state.to_sql("state", con, index=False) 
+
+
+# c.execute ("DROP TABLE IF EXISTS state")
+# by_state['key'] = range(1, len(by_state.index)+1)
+# by_state.to_sql("state", con, index=False) 
 
 c.execute ("DROP TABLE IF EXISTS pivot")
 pivot_table['key'] = range(1, len(pivot_table.index)+1)
-pivot_table.to_sql("pivot", con, index=False) 
+pivot_table.to_sql("pivot", con) 
 
 
 """ file info
