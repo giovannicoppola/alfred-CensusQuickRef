@@ -8,7 +8,7 @@ import os
 import sys
 
 INDEX_DB = '../bigFiles/index.db'
-
+DATA_FILE = '../bigFiles/pcen_v2020_y20.sas7bdat'
 
 
 

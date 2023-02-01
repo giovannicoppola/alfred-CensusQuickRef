@@ -32,7 +32,7 @@ def queryCensus ():
   
     try:
         cursor.execute("""SELECT *
-        FROM pivot
+        FROM statesPOP
         WHERE StateName    LIKE ?""", (MYQUERY,))
         
         rs = cursor.fetchall()
