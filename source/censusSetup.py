@@ -211,4 +211,10 @@ ST_FIPS      51
 CO_FIPS     325
 dtype: int64
 
+
+in the final database:
+Males are fields (add 1 to the fields in the documentation) 
+2, 4, 6, 8, 10, 12, 14, 16
+
+
 """
