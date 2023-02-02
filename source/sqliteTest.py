@@ -40,29 +40,50 @@ MYINPUT_county = '' #value for county
 connString = ''
 myOperator = ''
 
+raceMap = {"EUR": [2,3, 10,11],"AMR": [6,7,14,15],"AAA": [4,5,12,13], "ASI": [8,9,16,17]}
+sexMap = {"Male": [2, 4, 6, 8, 10, 12, 14, 16], "Female": [3, 5, 7, 9, 11, 13, 15, 17]}
 for currItem in MYITEMS:
-    itemCount += 1
+    
     if '+' in currItem:  # some age or above
         myOperator = '>='
         MYINPUT_age = currItem.replace('+', '')
+        itemCount += 1
+        if itemCount > 1:
+            connString = " AND "
+        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+    
     
     elif currItem[-1] == "-": # some age or below
         myOperator = '<='
         MYINPUT_age = currItem.replace('-', '')
+        itemCount += 1
+        if itemCount > 1:
+            connString = " AND "
+        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+    
     
     elif '-' in currItem:
         myOperator = ' between '
         MYINPUT_age = currItem.replace('-', ' AND ')
+        itemCount += 1
+        if itemCount > 1:
+            connString = " AND "
+        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+    
 
     elif currItem.isdigit(): # exact age
         myOperator = '='
         MYINPUT_age = currItem
+        itemCount += 1
+        if itemCount > 1:
+            connString = " AND "
+        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+    
     
 
 
-    if itemCount < nParam:
-        connString = " AND "
-    AgeFilterString = f'age {myOperator} {MYINPUT_age}{connString}'
+    
+    print (f"item {itemCount}: {currItem}")
     
     if '%' in currItem:
         MYINPUT_factor = currItem.replace('%', '')
@@ -71,10 +92,24 @@ for currItem in MYITEMS:
         if MYINPUT_factor > 1:
             MYINPUT_factor = MYINPUT_factor/100
 
-    if currItem.isalpha():
-        # if currItem in ['EUR','AA']
-        MYINPUT_state = currItem
-        StateFilterString = f'StateName LIKE "{MYINPUT_state}"'
+    if currItem.isalpha(): # text item: could be state (2 char), or sex (1) or race (3), or latino (1)
+        
+        #state
+        if len(currItem) == 2:
+            # if currItem in ['EUR','AA']
+            itemCount += 1
+            MYINPUT_state = currItem
+            if itemCount > 1:
+                connString = " AND "
+            
+            StateFilterString = f'{connString}StateName LIKE "{MYINPUT_state}%"'
+            
+        # race
+        elif len (currItem) == 3:
+            MYINPUT_race = currItem
+        # sex
+        elif len (currItem) == 1:
+            MYINPUT_sex = currItem
 
 
 def queryCensus ():
@@ -85,7 +120,7 @@ def queryCensus ():
     db = sqlite3.connect(INDEX_DB)
     cursor = db.cursor()
 
-    if nParam:
+    if itemCount:
         whereClause = " WHERE "
         
     #MYQUERY = "%" + MYINPUT_state + "%"
@@ -103,16 +138,22 @@ def queryCensus ():
         myTot = (sum(i[-2] for i in rs)) * MYINPUT_factor
         myTot = int(myTot)
         
-        maleIndex = [2, 4, 6, 8, 10, 12, 14, 16]
-        myMales = (sum(sum(i[xx] for xx in maleIndex) for i in rs)) * MYINPUT_factor
+        
+        myMales = (sum(sum(i[xx] for xx in sexMap['Male']) for i in rs)) * MYINPUT_factor
         percentMales = (myMales/myTot)*100
         myMales = int(myMales)
         
-        femaleIndex = [3, 5, 7, 9, 11, 13, 15, 17]
-        myFemales = (sum(sum(i[xx] for xx in femaleIndex) for i in rs)) * MYINPUT_factor
+        
+        myFemales = (sum(sum(i[xx] for xx in sexMap['Female']) for i in rs)) * MYINPUT_factor
         percentFemales = (myFemales/myTot)*100
         myFemales = int(myFemales)
         
+
+        myEUR = (sum(sum(i[xx] for xx in raceMap['EUR']) for i in rs)) * MYINPUT_factor
+        percentEUR = (myEUR/myTot)*100
+        myEUR = int(myEUR)
+        
+
 
         if MYINPUT_state:
             myState = f"in {rs[0][1]}"
@@ -145,8 +186,9 @@ def queryCensus ():
     # print (countR)
     print (f"{PercentString}individuals {myOperator}{AgeString}{myState}: {myTot:,}")
     print (f"{myMales:,} males ({percentMales:.1f}%)")
-    print (f"{myFemales:,} males ({percentFemales:.1f}%)")
-
+    print (f"{myFemales:,} females ({percentFemales:.1f}%)")
+    
+    print (f"{myEUR:,} EUR ({percentEUR:.1f}%)")
     if MYINPUT and not rs:
         print ("no results")
         
