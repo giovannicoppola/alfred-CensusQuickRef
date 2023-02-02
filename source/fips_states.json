@@ -1,0 +1,267 @@
+{
+    "AL": {
+        "state": "Alabama",
+        "abbr": "AL",
+        "fips": "1"
+    },
+    "AK": {
+        "state": "Alaska",
+        "abbr": "AK",
+        "fips": "2"
+    },
+    "AZ": {
+        "state": "Arizona",
+        "abbr": "AZ",
+        "fips": "4"
+    },
+    "AR": {
+        "state": "Arkansas",
+        "abbr": "AR",
+        "fips": "5"
+    },
+    "CA": {
+        "state": "California",
+        "abbr": "CA",
+        "fips": "6"
+    },
+    "CO": {
+        "state": "Colorado",
+        "abbr": "CO",
+        "fips": "8"
+    },
+    "CT": {
+        "state": "Connecticut",
+        "abbr": "CT",
+        "fips": "9"
+    },
+    "DE": {
+        "state": "Delaware",
+        "abbr": "DE",
+        "fips": "10"
+    },
+    "DC": {
+        "state": "District of Columbia",
+        "abbr": "DC",
+        "fips": "11"
+    },
+    "FL": {
+        "state": "Florida",
+        "abbr": "FL",
+        "fips": "12"
+    },
+    "GA": {
+        "state": "Georgia",
+        "abbr": "GA",
+        "fips": "13"
+    },
+    "HI": {
+        "state": "Hawaii",
+        "abbr": "HI",
+        "fips": "15"
+    },
+    "ID": {
+        "state": "Idaho",
+        "abbr": "ID",
+        "fips": "16"
+    },
+    "IL": {
+        "state": "Illinois",
+        "abbr": "IL",
+        "fips": "17"
+    },
+    "IN": {
+        "state": "Indiana",
+        "abbr": "IN",
+        "fips": "18"
+    },
+    "IA": {
+        "state": "Iowa",
+        "abbr": "IA",
+        "fips": "19"
+    },
+    "KS": {
+        "state": "Kansas",
+        "abbr": "KS",
+        "fips": "20"
+    },
+    "KY": {
+        "state": "Kentucky",
+        "abbr": "KY",
+        "fips": "21"
+    },
+    "LA": {
+        "state": "Louisiana",
+        "abbr": "LA",
+        "fips": "22"
+    },
+    "ME": {
+        "state": "Maine",
+        "abbr": "ME",
+        "fips": "23"
+    },
+    "MD": {
+        "state": "Maryland",
+        "abbr": "MD",
+        "fips": "24"
+    },
+    "MA": {
+        "state": "Massachusetts",
+        "abbr": "MA",
+        "fips": "25"
+    },
+    "MI": {
+        "state": "Michigan",
+        "abbr": "MI",
+        "fips": "26"
+    },
+    "MN": {
+        "state": "Minnesota",
+        "abbr": "MN",
+        "fips": "27"
+    },
+    "MS": {
+        "state": "Mississippi",
+        "abbr": "MS",
+        "fips": "28"
+    },
+    "MO": {
+        "state": "Missouri",
+        "abbr": "MO",
+        "fips": "29"
+    },
+    "MT": {
+        "state": "Montana",
+        "abbr": "MT",
+        "fips": "30"
+    },
+    "NE": {
+        "state": "Nebraska",
+        "abbr": "NE",
+        "fips": "31"
+    },
+    "NV": {
+        "state": "Nevada",
+        "abbr": "NV",
+        "fips": "32"
+    },
+    "NH": {
+        "state": "New Hampshire",
+        "abbr": "NH",
+        "fips": "33"
+    },
+    "NJ": {
+        "state": "New Jersey",
+        "abbr": "NJ",
+        "fips": "34"
+    },
+    "NM": {
+        "state": "New Mexico",
+        "abbr": "NM",
+        "fips": "35"
+    },
+    "NY": {
+        "state": "New York",
+        "abbr": "NY",
+        "fips": "36"
+    },
+    "NC": {
+        "state": "North Carolina",
+        "abbr": "NC",
+        "fips": "37"
+    },
+    "ND": {
+        "state": "North Dakota",
+        "abbr": "ND",
+        "fips": "38"
+    },
+    "OH": {
+        "state": "Ohio",
+        "abbr": "OH",
+        "fips": "39"
+    },
+    "OK": {
+        "state": "Oklahoma",
+        "abbr": "OK",
+        "fips": "40"
+    },
+    "OR": {
+        "state": "Oregon",
+        "abbr": "OR",
+        "fips": "41"
+    },
+    "PA": {
+        "state": "Pennsylvania",
+        "abbr": "PA",
+        "fips": "42"
+    },
+    "PR": {
+        "state": "Puerto Rico",
+        "abbr": "PR",
+        "fips": "72"
+    },
+    "RI": {
+        "state": "Rhode Island",
+        "abbr": "RI",
+        "fips": "44"
+    },
+    "SC": {
+        "state": "South Carolina",
+        "abbr": "SC",
+        "fips": "45"
+    },
+    "SD": {
+        "state": "South Dakota",
+        "abbr": "SD",
+        "fips": "46"
+    },
+    "TN": {
+        "state": "Tennessee",
+        "abbr": "TN",
+        "fips": "47"
+    },
+    "TX": {
+        "state": "Texas",
+        "abbr": "TX",
+        "fips": "48"
+    },
+    "UT": {
+        "state": "Utah",
+        "abbr": "UT",
+        "fips": "49"
+    },
+    "VT": {
+        "state": "Vermont",
+        "abbr": "VT",
+        "fips": "50"
+    },
+    "VA": {
+        "state": "Virginia",
+        "abbr": "VA",
+        "fips": "51"
+    },
+    "VI": {
+        "state": "Virgin Islands",
+        "abbr": "VI",
+        "fips": "78"
+    },
+    "WA": {
+        "state": "Washington",
+        "abbr": "WA",
+        "fips": "53"
+    },
+    "WV": {
+        "state": "West Virginia",
+        "abbr": "WV",
+        "fips": "54"
+    },
+    "WI": {
+        "state": "Wisconsin",
+        "abbr": "WI",
+        "fips": "55"
+    },
+    "WY": {
+        "state": "Wyoming",
+        "abbr": "WY",
+        "fips": "56"
+    }
+}

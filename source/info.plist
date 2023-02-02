@@ -28,7 +28,7 @@
 				<key>argumenttrimmode</key>
 				<integer>0</integer>
 				<key>argumenttype</key>
-				<integer>0</integer>
+				<integer>1</integer>
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
@@ -45,9 +45,9 @@
 				<string></string>
 				<key>script</key>
 				<string>export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
-myQuery="$1"
+myQuery=" $1"
 
-#if [[ ${#myQuery} -gt 1 ]]
+#if [[${#myQuery} -gt 1 ]]
 #then
 	python3 quickCensus-query.py "$1"
 #else

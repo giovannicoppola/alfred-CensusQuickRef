@@ -53,7 +53,7 @@ sexMap = {"f": [2, 4, 6, 8, 10, 12, 14, 16], "m": [3, 5, 7, 9, 11, 13, 15, 17]} 
 hisMap = {"h": list(range(2, 10)),"n": list(range(10, 18))}
 
 myFinalMap = list(range(2, 18))
-#print (myFinalMap)
+print (myFinalMap)
 
 
 for currItem in MYITEMS:
@@ -131,7 +131,7 @@ for currItem in MYITEMS:
     
 
 def queryCensus ():
-    result = {"items": [], "variables":{}}
+    #result = {"items": [], "variables":{}}
     whereClause = ''
     AgeString = ''
     connString = ''
@@ -160,7 +160,7 @@ def queryCensus ():
         myTot = int(myTot)
         
 
-        #print (f"right before the query: {myFinalMap}")
+        print (f"right before the query: {myFinalMap}")
         myFinalResult = (sum(sum(i[xx] for xx in myFinalMap) for i in rs)) * MYINPUT_factor
         percentFin = (myFinalResult/myTot)*100
         myFinalResult = int(myFinalResult)
@@ -194,26 +194,26 @@ def queryCensus ():
         myResLen = len (rs)
         countR=1
         
-        #for r in rs:
+        for r in rs:
             
                  
         
-        #### COMPILING OUTPUT    
-        result["items"].append({
-        "title": f"State: {MYINPUT_state}, {myFinalResult:,}",
-        "subtitle": f"{countR}/{myResLen:,}",
-        
-        "variables": {
-        },
-        
-        "icon": {   
-        
-        "path": ""
-    }
-        
+            #### COMPILING OUTPUT    
+            result["items"].append({
+            "title": f"State: {r[1]}, age: {r[2]}",
+            "subtitle": f"{countR}/{myResLen:,}",
+            
+            "variables": {
+            },
+            
+            "icon": {   
+            
+            "path": ""
+        }
+            
 
-        })
-        countR += 1  
+            })
+            countR += 1  
 
                 
 
@@ -224,11 +224,11 @@ def queryCensus ():
 
 
     # print (countR)
-    #print (f"{PercentString}individuals {myOperator}{AgeString}{myState}: {myTot:,}")
+    print (f"{PercentString}individuals {myOperator}{AgeString}{myState}: {myTot:,}")
     #print ()
     #print (f"{myFemales:,} females ({percentFemales:.1f}%)")
     
-    #print (f"Final Result: {myFinalResult:,} {MYINPUT_race} {MYINPUT_sex} {MYINPUT_latino} ({percentFin:.1f}%)")
+    print (f"Final Result: {myFinalResult:,} {MYINPUT_race} {MYINPUT_sex} {MYINPUT_latino} ({percentFin:.1f}%)")
 
     if MYINPUT and not rs:
         resultErr= {"items": [{

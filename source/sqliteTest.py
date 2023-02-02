@@ -11,6 +11,8 @@ import sqlite3
 from time import time
 import sys
 
+import json
+
 from config import INDEX_DB, log
 
 
@@ -37,98 +39,118 @@ MYINPUT_latino = '' #value for latino
 
 MYINPUT_county = '' #value for county
 
-connString = ''
+
+with open('fips_states.json') as json_file:
+    fips_states = json.load(json_file)
+
+ 
+
+
 myOperator = ''
 
-raceMap = {"EUR": [2,3, 10,11],"AMR": [6,7,14,15],"AAA": [4,5,12,13], "ASI": [8,9,16,17]}
-sexMap = {"Male": [2, 4, 6, 8, 10, 12, 14, 16], "Female": [3, 5, 7, 9, 11, 13, 15, 17]}
+raceMapExcl = {"eur": [6,7,14,15,4,5,12,13,8,9,16,17], "amr": [2,3, 10,11,4,5,12,13,8,9,16,17],"aaa": [2,3, 10,11,6,7,14,15,8,9,16,17],"asi": [2,3, 10,11,6,7,14,15,4,5,12,13]}
+sexMap = {"f": [2, 4, 6, 8, 10, 12, 14, 16], "m": [3, 5, 7, 9, 11, 13, 15, 17]} #fields to exclude for each sex
+hisMap = {"h": list(range(2, 10)),"n": list(range(10, 18))}
+
+myFinalMap = list(range(2, 18))
+print (myFinalMap)
+
+
 for currItem in MYITEMS:
     
     if '+' in currItem:  # some age or above
         myOperator = '>='
         MYINPUT_age = currItem.replace('+', '')
         itemCount += 1
-        if itemCount > 1:
-            connString = " AND "
-        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+        AgeFilterString = f'age {myOperator} {MYINPUT_age}'
     
     
     elif currItem[-1] == "-": # some age or below
         myOperator = '<='
         MYINPUT_age = currItem.replace('-', '')
         itemCount += 1
-        if itemCount > 1:
-            connString = " AND "
-        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+        AgeFilterString = f'age {myOperator} {MYINPUT_age}'
     
     
-    elif '-' in currItem:
+    elif '-' in currItem: #age range
         myOperator = ' between '
         MYINPUT_age = currItem.replace('-', ' AND ')
         itemCount += 1
-        if itemCount > 1:
-            connString = " AND "
-        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+        AgeFilterString = f'age {myOperator} {MYINPUT_age}'
     
 
     elif currItem.isdigit(): # exact age
         myOperator = '='
         MYINPUT_age = currItem
         itemCount += 1
-        if itemCount > 1:
-            connString = " AND "
-        AgeFilterString = f'{connString}age {myOperator} {MYINPUT_age}'
+        AgeFilterString = f'age {myOperator} {MYINPUT_age}'
     
     
-
-
     
-    print (f"item {itemCount}: {currItem}")
     
-    if '%' in currItem:
+    if '%' in currItem: # percent
         MYINPUT_factor = currItem.replace('%', '')
         MYINPUT_factor = int(MYINPUT_factor)
         PercentString = f"{currItem} of "
         if MYINPUT_factor > 1:
             MYINPUT_factor = MYINPUT_factor/100
 
+    if ':' in currItem: # prevalence per 100k
+        MYINPUT_factor = currItem.replace(':', '')
+        MYINPUT_factor = (int(MYINPUT_factor))*0.00001
+        PercentString = f"{currItem}100,000 of "
+        
+
     if currItem.isalpha(): # text item: could be state (2 char), or sex (1) or race (3), or latino (1)
         
         #state
         if len(currItem) == 2:
-            # if currItem in ['EUR','AA']
             itemCount += 1
-            MYINPUT_state = currItem
-            if itemCount > 1:
-                connString = " AND "
+            #MYINPUT_state = currItem
+            MYINPUT_state = fips_states[currItem.upper()]['state']
+            #MYINPUT_state = [d for d in fips_states if d['abbr'] == currItem]
+            #print (f"this is the input state: {MYINPUT_state}")
+            #MYINPUT_state = MYINPUT_state[0]['state']
             
-            StateFilterString = f'{connString}StateName LIKE "{MYINPUT_state}%"'
+            StateFilterString = f'StateName LIKE "{MYINPUT_state}%"'
             
         # race
-        elif len (currItem) == 3:
+        elif len (currItem) == 3 and currItem.casefold() in raceMapExcl.keys(): #race
+            
             MYINPUT_race = currItem
+            myFinalMap = [i for i in myFinalMap if i not in raceMapExcl[currItem.casefold()]]
         # sex
-        elif len (currItem) == 1:
+        elif len (currItem) == 1 and currItem.casefold() in sexMap.keys(): #male/female
             MYINPUT_sex = currItem
-
+            myFinalMap = [i for i in myFinalMap if i not in sexMap[currItem.casefold()]]
+       
+        elif len (currItem) == 1 and currItem.casefold() in hisMap.keys(): #hispanic vs. not
+            MYINPUT_latino = currItem
+            myFinalMap = [i for i in myFinalMap if i not in hisMap[currItem.casefold()]]
+            
+    
 
 def queryCensus ():
     #result = {"items": [], "variables":{}}
     whereClause = ''
     AgeString = ''
+    connString = ''
 
     db = sqlite3.connect(INDEX_DB)
     cursor = db.cursor()
 
     if itemCount:
         whereClause = " WHERE "
+        if itemCount == 2:
+            connString = ' AND '
+
         
     #MYQUERY = "%" + MYINPUT_state + "%"
     queryString = f"""SELECT *
-        FROM statesPOP {whereClause}
-        {AgeFilterString} {StateFilterString}"""
+        FROM statesPOP {whereClause} 
+        {AgeFilterString}{connString}{StateFilterString}"""
     
-    print (queryString)
+    
     try:
         cursor.execute(queryString)
         
@@ -138,20 +160,11 @@ def queryCensus ():
         myTot = (sum(i[-2] for i in rs)) * MYINPUT_factor
         myTot = int(myTot)
         
-        
-        myMales = (sum(sum(i[xx] for xx in sexMap['Male']) for i in rs)) * MYINPUT_factor
-        percentMales = (myMales/myTot)*100
-        myMales = int(myMales)
-        
-        
-        myFemales = (sum(sum(i[xx] for xx in sexMap['Female']) for i in rs)) * MYINPUT_factor
-        percentFemales = (myFemales/myTot)*100
-        myFemales = int(myFemales)
-        
 
-        myEUR = (sum(sum(i[xx] for xx in raceMap['EUR']) for i in rs)) * MYINPUT_factor
-        percentEUR = (myEUR/myTot)*100
-        myEUR = int(myEUR)
+        print (f"right before the query: {myFinalMap}")
+        myFinalResult = (sum(sum(i[xx] for xx in myFinalMap) for i in rs)) * MYINPUT_factor
+        percentFin = (myFinalResult/myTot)*100
+        myFinalResult = int(myFinalResult)
         
 
 
@@ -185,10 +198,10 @@ def queryCensus ():
 
     # print (countR)
     print (f"{PercentString}individuals {myOperator}{AgeString}{myState}: {myTot:,}")
-    print (f"{myMales:,} males ({percentMales:.1f}%)")
-    print (f"{myFemales:,} females ({percentFemales:.1f}%)")
+    #print ()
+    #print (f"{myFemales:,} females ({percentFemales:.1f}%)")
     
-    print (f"{myEUR:,} EUR ({percentEUR:.1f}%)")
+    print (f"Final Result: {myFinalResult:,} {MYINPUT_race} {MYINPUT_sex} {MYINPUT_latino} ({percentFin:.1f}%)")
     if MYINPUT and not rs:
         print ("no results")
         
@@ -206,3 +219,27 @@ if __name__ == '__main__':
 
 
 
+def make_json(csvFilePath, jsonFilePath):
+     
+    # create a dictionary
+    data = {}
+     
+    # Open a csv reader called DictReader
+    with open(csvFilePath, encoding='utf-8-sig') as csvf:
+        csvReader = csv.DictReader(csvf)
+         
+        # Convert each row into a dictionary
+        # and add it to data
+        for rows in csvReader:
+             
+            # Assuming a column named 'No' to
+            # be the primary key
+            key = rows['abbr']
+            data[key] = rows
+ 
+    # Open a json writer, and use the json.dumps()
+    # function to dump data
+    with open(jsonFilePath, 'w', encoding='utf-8') as jsonf:
+        jsonf.write(json.dumps(data, indent=4))
+
+#make_json("fips_states.csv", "fips_states.json")
