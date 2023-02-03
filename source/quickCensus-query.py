@@ -24,6 +24,7 @@ itemCount = 0
 
 MYINPUT_state = '' # value for US state
 StateFilterString = ''
+MYINPUT_state_abb = ''
 
 MYINPUT_factor = 1 #value for percentages
 PercentString = ''
@@ -94,10 +95,10 @@ for currItem in MYITEMS:
     
     if '%' in currItem: # percent
         MYINPUT_factor = currItem.replace('%', '')
-        MYINPUT_factor = int(MYINPUT_factor)
+        MYINPUT_factor = float(MYINPUT_factor)
         PercentString = f"({currItem})"
-        if MYINPUT_factor > 1:
-            MYINPUT_factor = MYINPUT_factor/100
+        #if MYINPUT_factor >= 1:
+        MYINPUT_factor = MYINPUT_factor/100
 
     if ':' in currItem: # prevalence per 100k
         MYINPUT_factor = currItem.replace(':', '')
