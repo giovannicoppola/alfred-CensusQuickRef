@@ -5,7 +5,21 @@
 	<key>bundleid</key>
 	<string>giovanni-quickcensus</string>
 	<key>connections</key>
-	<dict/>
+	<dict>
+		<key>5CD00C6E-6621-45B2-9F71-286DF07641D2</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>FE8CD9D9-4C7E-4018-9A7C-5B39FE909D5B</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
 	<key>createdby</key>
 	<string>giovanni</string>
 	<key>description</key>
@@ -16,6 +30,25 @@
 	<string>QuickCensus</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>autopaste</key>
+				<true/>
+				<key>clipboardtext</key>
+				<string>{query}</string>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
+				<key>transient</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>FE8CD9D9-4C7E-4018-9A7C-5B39FE909D5B</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -32,7 +65,7 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
-				<string>pop</string>
+				<string>!p</string>
 				<key>queuedelaycustom</key>
 				<integer>3</integer>
 				<key>queuedelayimmediatelyinitially</key>
@@ -45,9 +78,9 @@
 				<string></string>
 				<key>script</key>
 				<string>export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
-myQuery=" $1"
+myQuery="$1"
 
-#if [[${#myQuery} -gt 1 ]]
+#if [[ ${#myQuery} -gt 1 ]]
 #then
 	python3 quickCensus-query.py "$1"
 #else
@@ -92,6 +125,13 @@ myQuery=" $1"
 		<dict>
 			<key>xpos</key>
 			<real>405</real>
+			<key>ypos</key>
+			<real>235</real>
+		</dict>
+		<key>FE8CD9D9-4C7E-4018-9A7C-5B39FE909D5B</key>
+		<dict>
+			<key>xpos</key>
+			<real>690</real>
 			<key>ypos</key>
 			<real>235</real>
 		</dict>
