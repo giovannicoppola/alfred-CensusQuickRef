@@ -14,8 +14,11 @@ containing records for all US counties divided by sex, race, latino
 Initial file has 4,324,768 entries, total population: 329,484,123
 
 
+WOrld files downloaded here:
+https://population.un.org/wpp/Download/Standard/Population/
 
-
+WPP2022_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.xlsx (first tab saved as CSV, first 16 rows skipped)
+WPP2022_POP_F01_2_POPULATION_SINGLE_AGE_MALE.xlsx
 
 """
 import datetime
@@ -24,7 +27,7 @@ import pandas as pd
 import sqlite3
 import os
 
-from config import INDEX_DB, log, logF, DATA_FILE
+from config import INDEX_DB, log, logF, DATA_FILE_US, DATA_FILE_WORLD
 
 
 
@@ -46,15 +49,14 @@ def join_numbers(A, B):
         result.append(a + b)
     return result
 
-
-def main(args=None):
-    main_start_time = time()
-    logF (f"# Master Census catalog build\n{myTimeStamp}", file_name =  LOG_FILE)
-    logF (f"\n- source file used: {DATA_FILE}\n", file_name =  LOG_FILE)
+def UScensus(dataFile):
+    
+    logF (f"# US Census catalog build\n{myTimeStamp}", file_name =  LOG_FILE)
+    logF (f"\n- source file used: {dataFile}\n", file_name =  LOG_FILE)
 
     # reading the 2020 file in SAS format from the CDC website
     print (f"reading the SAS object in...")
-    allData = pd.read_sas(DATA_FILE)
+    allData = pd.read_sas(dataFile)
     
 
     totTot = int(allData['pop'].sum())
@@ -71,10 +73,10 @@ def main(args=None):
     # 3,143
 
     # reading in the FIPS codes for US states and counties
-    fips = pd.read_csv ('../fips_states.csv')
-    fips_counties = pd.read_csv ('../fips_counties.csv')
+    fips = pd.read_csv ('fips_states.csv')
+    fips_counties = pd.read_csv ('fips_counties.csv')
     
-    # dropping columns with a single valie
+    # dropping columns with a single value
     allData.drop(['VINTAGE', 'YEAR','MONTH'], axis=1)     
 
     # turning FIPS codes to integer, then generating a unique FIPS number
@@ -102,9 +104,8 @@ def main(args=None):
     countiesPOP = allData.pivot(index = ['age','StateName','CountyName','fullFIPS'], columns=['hisp', 'RACESEX'], values='pop')
     c.execute ("DROP TABLE IF EXISTS countiesPOP")
     
-    #print (countiesPOP.info())
-
-    ### NEED TO RENAME COLUMNS HERE
+    
+    ### MIGHT WANT TO RENAME COLUMNS HERE
     
     # generating a pop total for each county/age
     countiesPOP['TotalPOP']= countiesPOP.sum(axis=1)
@@ -125,8 +126,7 @@ def main(args=None):
     statesPOP = by_state.pivot(index = ['age','StateName'], columns=['hisp', 'RACESEX'], values='pop')
     c.execute ("DROP TABLE IF EXISTS statesPOP")
     
-    ### NEED TO RENAME COLUMNS HERE
-    
+        
     # generating a pop total for each state/age
     statesPOP['TotalPOP']= statesPOP.sum(axis=1)
     statesPOP['key'] = range(1, len(statesPOP.index)+1)
@@ -139,10 +139,59 @@ def main(args=None):
     statesPOP.to_sql("statesPOP", con) 
 
 
-
-  
+def WorldCensus (DataFileTot,DataFileM):
+    """
+    file info: 
+    20,520 rows
+    285 after removing spurious and keeping one year only
+    in the Type column:
+        1 World
+        6 regions (africa, asia etc)
+        6 income groups (high-income, middle-income etc)
+        5 development groups (least developed, less developed)
+        8 SDG regions (Latin America, Europe and north america) [sustainable development goals]
+        2 special other (landlocked developing and small island developing)
+        21 Subregions (Eastern Africa, Western Europe etc)
+        236 Countries/areas
+    """
     
+    df = pd.read_csv(DataFileTot)
+    
+    df.drop(df[df['Type'] == "Label/Separator"].index, inplace = True) #removing 'separator' row
+    df.drop(df[df['Year'] != 2021].index, inplace = True)  #removing anything not in 2021
+    
+    for column in df.columns[11:112]:
+        df[column] = df[column].str.replace(' ', '').astype("Int64")
+    
+    df['Total'] = df[df.columns[11:112]].sum(axis=1).astype("Int64") #adding row total 
 
+    df['Year'] = df['Year'].astype('Int64')
+    df.drop(['Variant'], axis=1,inplace=True) 
+    
+    
+    # generating a table with all world countries
+    print (f"generating a table with all world countries...")
+    con = sqlite3.connect(INDEX_DB)
+    c = con.cursor()
+    
+    df.rename(columns={'Index': 'IndexCol'}, inplace=True)
+    df.rename(columns={'Region, subregion, country or area *': 'Area'}, inplace=True)
+    df.drop(['Notes'], axis=1,inplace=True) 
+    df.drop(['SDMX code**'], axis=1,inplace=True) 
+    
+    print (df.info(verbose=True))
+    print (df.head(10))
+    
+    c.execute ("DROP TABLE IF EXISTS worldPOP")
+    df.to_sql("worldPOP", con) 
+
+
+    
+def main(args=None):
+    main_start_time = time()
+    #UScensus(DATA_FILE_US)
+    WorldCensus (DATA_FILE_WORLD,DATA_FILE_WORLD)
+    
     main_timeElapsed = time() - main_start_time
     print(f"\nTotal script duration: {round (main_timeElapsed,2)} seconds")
     logF(f"\nTotal script duration: {round (main_timeElapsed,2)} seconds", file_name =  LOG_FILE)
@@ -215,6 +264,11 @@ dtype: int64
 in the final database:
 Males are fields (add 1 to the fields in the documentation) 
 2, 4, 6, 8, 10, 12, 14, 16
+
+
+
+
+
 
 
 """

@@ -1,29 +1,33 @@
 #!/usr/bin/env python3
 
-### testing sqlite queries
+"""  **** quickCensus query ****
+a script to query and make calculations on demographic data, with a function to calculate 
+carriers if OR, disease, and MAF are provided. 
 
+New York – Overcast ☁️   🌡️+25°F (feels +16°F, 80%) 🌬️↓6mph 🌔&m Wed Feb  1 07:15:58 2023
+W5Q1 – 32 ➡️ 332 – 266 ❇️ 98
 
-# New York – Overcast ☁️   🌡️+25°F (feels +16°F, 80%) 🌬️↓6mph 🌔&m Wed Feb  1 07:15:58 2023
-# W5Q1 – 32 ➡️ 332 – 266 ❇️ 98
+"""
 
 
 import sqlite3
 from time import time
 import sys
-
+import math
 import json
 
-from config import INDEX_DB, log
+from config import INDEX_DB, log, UStotPop
 
 
 MYINPUT = sys.argv[1]
 
 MYITEMS = MYINPUT.split()
-nParam =  len(MYITEMS)
+MYITEMS = [*set(MYITEMS)] #eliminating exact duplicates
 itemCount = 0
 
 MYINPUT_state = '' # value for US state
 StateFilterString = ''
+CountryFilterString = ''
 MYINPUT_state_abb = ''
 
 MYINPUT_factor = 1 #value for percentages
@@ -40,12 +44,58 @@ MYINPUT_latino = '' #value for latino
 
 MYINPUT_county = '' #value for county
 
-UStotPop = 329484123
+MYINPUT_OR = '' # value for odds ratio
+ORString = ''
 
+MYINPUT_MAF = '' #value for MAF
+MAFString = ''
+
+
+MYINPUT_DIS = '' #value for disease prevalence
+DISString = ''
+
+OregonFlag = False # needed to disambiguate odds ratio and Oregon (or any state entered)
+
+# loading the fips codes for states
 with open('fips_states.json') as json_file:
     fips_states = json.load(json_file)
 
  
+
+def has_numbers(inputString):
+# function to check if a string has both numbers and letters (for OR, MAF, DIS entries)
+    hasNumbers = any(char.isdigit() for char in inputString)
+    hasLetters = any(char.isalpha() for char in inputString)
+    return hasNumbers and hasLetters
+
+def predictCarriers (population, MAF, OR, DiseasePrevalence):
+    pDis_A = DiseasePrevalence/(MAF+((1-MAF)/OR)) # probability of having the disease given alt allele
+    pDis_a = pDis_A/OR # probability of having the disease given ref allele
+    
+    # cases
+    pDis = int(population * DiseasePrevalence) #number of people with disease
+    pDA = pDis_A * MAF
+    ExpDA = round(population * pDA)
+    percentDA = (ExpDA/pDis)*100
+    nonZeroDA = math.ceil(abs(math.log10(percentDA)))
+
+    # controls
+    pControls = population - pDis
+    ExpCont = round((population * MAF)-ExpDA)
+    percentControl = (ExpCont/pControls)*100
+    nonZeroC = math.ceil(abs(math.log10(percentControl)))
+    
+
+    OR_statement = (f"Assuming MAF: {MAF}, "
+    f"disease prevalence: {DiseasePrevalence}, " 
+    f"OR: {OR}, "
+    f"and population size: {population:,}, we estimate "
+    f"{ExpDA:,}/{pDis:,} ({percentDA:.{nonZeroDA}f}%) affected carriers "
+    f"and {ExpCont:,}/{pControls:,} ({percentControl:.{nonZeroC}f}%) control carriers")
+    
+    
+    return ExpDA, OR_statement
+
 
 
 myOperator = ''
@@ -91,29 +141,49 @@ for currItem in MYITEMS:
         itemCount += 1
         AgeFilterString = f'age {myOperator} {MYINPUT_age}'
     
+    elif 'OR' in currItem and has_numbers (currItem): # OR -checks if numbers because of Oregon :) 
+        MYINPUT_OR = currItem.replace('OR', '')
+        MYINPUT_OR = float(MYINPUT_OR)
+        ORString = f"(OR: {MYINPUT_OR})"
+        
+    elif 'MAF' in currItem and has_numbers (currItem): 
+        MYINPUT_MAF = currItem.replace('MAF', '')
+        MYINPUT_MAF = float(MYINPUT_MAF)
+        MAFString = f"(MAF: {MYINPUT_MAF})"
     
+    elif 'DIS' in currItem and has_numbers (currItem): 
+        MYINPUT_DIS = currItem.replace('DIS', '')
+        MYINPUT_DIS = float(MYINPUT_DIS)
+        DISString = f"(MAF: {MYINPUT_DIS})"
+        
     
-    if '%' in currItem: # percent
+    elif '%' in currItem: # percent
         MYINPUT_factor = currItem.replace('%', '')
         MYINPUT_factor = float(MYINPUT_factor)
         PercentString = f"({currItem})"
         #if MYINPUT_factor >= 1:
         MYINPUT_factor = MYINPUT_factor/100
 
-    if ':' in currItem: # prevalence per 100k
+    elif ':' in currItem: # prevalence per 100k
         MYINPUT_factor = currItem.replace(':', '')
         MYINPUT_factor = (int(MYINPUT_factor))*0.00001
         PercentString = f"({currItem}100,000)"
         
 
-    if currItem.isalpha(): # text item: could be state (2 char), or sex (1) or race (3), or latino (1)
+    elif currItem.isalpha(): # text item: could be state (2 char), or sex (1) or race (3), or latino (1)
         
         #state
         if len(currItem) == 2:
+            if currItem =="OR" and OregonFlag == True: # OR -checks if numbers because of Oregon :) 
+                break
+    
             itemCount += 1
             MYINPUT_state_abb = currItem
+            
             try:
                 MYINPUT_state = fips_states[currItem.upper()]['state']
+                if MYINPUT_state:
+                    OregonFlag = True
             except:
                 resultErr= {"items": [{
                     "title": "No matches",
@@ -142,6 +212,9 @@ for currItem in MYITEMS:
         elif len (currItem) == 1 and currItem.casefold() in hisMap.keys(): #hispanic vs. not
             MYINPUT_latino = currItem
             myFinalMap = [i for i in myFinalMap if i not in hisMap[currItem.casefold()]]
+        
+        else:
+            CountryFilterString = f'Area LIKE "{currItem}%"'
             
     
 
@@ -152,7 +225,9 @@ def queryCensus ():
     connString = ''
     AgeString = ''
     percentSubtitle = ''
-
+    ORblock = ''
+    ORstatement = ''
+    
     if MYINPUT_age:
         AgeString = f"age {myOperatorString} {MYINPUT_age}yo "
 
@@ -166,7 +241,7 @@ def queryCensus ():
             connString = ' AND '
 
         
-    #MYQUERY = "%" + MYINPUT_state + "%"
+    
     queryString = f"""SELECT *
         FROM statesPOP {whereClause} 
         {AgeFilterString}{connString}{StateFilterString}"""
@@ -195,11 +270,9 @@ def queryCensus ():
             myStateString = MYINPUT_state
         else: 
             myStateString = "🇺🇸"
-    
+            myStateIcon = f'icons/US.png'
 
-    
-
-
+      
 
     except sqlite3.OperationalError as err:
         result= {"items": [{
@@ -214,10 +287,44 @@ def queryCensus ():
         print (json.dumps(result))
         raise err
 
+    if MYINPUT_OR or MYINPUT_MAF or MYINPUT_DIS:
+        if MYINPUT_DIS:
+            DIScheck = f"DIS: ✅"
+        else:
+            DIScheck = f"DIS: ❌"
+        
+        if MYINPUT_OR:
+            ORcheck = f"OR: ✅"
+        else:
+            ORcheck = f"OR: ❌"
+        
+        if MYINPUT_MAF:
+            MAFcheck = f"MAF: ✅"
+        else:
+            MAFcheck = f"MAF: ❌"
+                
+        ORblock = f"{ORcheck}-{DIScheck}-{MAFcheck}"
+        if MYINPUT_OR and MYINPUT_MAF and MYINPUT_DIS:
+            predictedCarriers, ORstatement = predictCarriers (
+                population=myFinalResult, 
+                MAF=MYINPUT_MAF, 
+                OR= MYINPUT_OR,
+                DiseasePrevalence=MYINPUT_DIS)
+            
+            ORblock = f"CALCULATING on {myFinalResult}"
+
+    # WORLD RESULTS
+    WorldQueryString = f"""SELECT Area, Total
+        FROM worldPOP WHERE Area IN ('EUROPE', 'WORLD','AFRICA','ASIA','NORTHERN AMERICA','LATIN AMERICA AND THE CARIBBEAN','OCEANIA') ORDER BY Total DESC"""
+    
+    cursor.execute(WorldQueryString)
+    rs_EU = cursor.fetchall()
+
+    
     if (rs):
                 
         outputString = f"{myStateString} {myFinalResult:,.0f} {PercentString} {AgeString} {MYINPUT_race.upper()} {MYINPUT_sex.upper()} {MYINPUT_latino.upper()}"
-        subtitleString = f"{percentUS:.1f}% of 🇺🇸 pop {percentSubtitle}"
+        subtitleString = f"{percentUS:.1f}% of 🇺🇸 pop {percentSubtitle} {ORblock}"
             
                  
         
@@ -226,7 +333,8 @@ def queryCensus ():
         "title": outputString,
         "subtitle": subtitleString,
         "arg": f"{outputString}\n{subtitleString}",
-        "variables": {
+        "variables": {"ORstatement": ORstatement,
+        "POPstatement": f"{outputString} ({subtitleString})"
         },
         
         "icon": {   
@@ -237,8 +345,24 @@ def queryCensus ():
 
         })
         
+        
+        for r_EU in rs_EU:
+            finalWorld = round((r_EU[1]*1000) * MYINPUT_factor)
+            myStateIcon = f'icons/{r_EU[0]}.png'
+            
+            result["items"].append({
+                    "title": f"{finalWorld:,} {PercentString}",
+                    "subtitle": r_EU[0],
+                    
+                    "icon": {   
+                    
+                    "path": myStateIcon
+                }
+                    
 
-                
+                    })
+            
+                    
 
         print (json.dumps(result))
 

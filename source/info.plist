@@ -36,7 +36,8 @@
 				<key>autopaste</key>
 				<true/>
 				<key>clipboardtext</key>
-				<string>{query}</string>
+				<string>{var:POPstatement}
+{var:ORstatement}</string>
 				<key>ignoredynamicplaceholders</key>
 				<false/>
 				<key>transient</key>

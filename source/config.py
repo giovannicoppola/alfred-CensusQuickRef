@@ -8,8 +8,10 @@ import os
 import sys
 
 INDEX_DB = '../bigFiles/index.db'
-DATA_FILE = '../bigFiles/pcen_v2020_y20.sas7bdat'
+DATA_FILE_US = '../bigFiles/pcen_v2020_y20.sas7bdat'
+UStotPop = 329484123
 
+DATA_FILE_WORLD = "../bigFiles/WPP2022_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.csv"
 
 
 def log(s, *args):
