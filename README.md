@@ -20,3 +20,5 @@ https://github.com/kjhealy/fips-codes/blob/master/county_fips_master.csv
 world population
 https://www.census.gov/programs-surveys/international-programs/about/idb.html
 
+https://www.flaticon.com/free-icon/european_4628667
+https://thenounproject.com/icon/africa-146421/

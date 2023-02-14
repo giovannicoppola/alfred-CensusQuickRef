@@ -55,6 +55,10 @@ MYINPUT_DIS = '' #value for disease prevalence
 DISString = ''
 
 OregonFlag = False # needed to disambiguate odds ratio and Oregon (or any state entered)
+#StartWorldAge = 9 #start column for age (age = 0)
+#EndWorldAge = 108 #end column for age (age = 100+)
+AgeWorldQueryString = ', Total'
+
 
 # loading the fips codes for states
 with open('fips_states.json') as json_file:
@@ -118,7 +122,10 @@ for currItem in MYITEMS:
         MYINPUT_age = currItem.replace('+', '')
         itemCount += 1
         AgeFilterString = f'age {myOperator} {MYINPUT_age}'
-    
+        myRange = range ((int(MYINPUT_age)+1),88)
+        myString = " + ".join([f'"{item}"' for item in myRange])
+        AgeWorldQueryString = f', {myString}'
+        log (AgeWorldQueryString)
     
     elif currItem[-1] == "-": # some age or below
         myOperator = '<='
@@ -126,6 +133,10 @@ for currItem in MYITEMS:
         MYINPUT_age = currItem.replace('-', '')
         itemCount += 1
         AgeFilterString = f'age {myOperator} {MYINPUT_age}'
+        myRange = range (0,(int(MYINPUT_age)+1))
+        myString = " + ".join([f'"{item}"' for item in myRange])
+        AgeWorldQueryString = f', {myString}'
+        log (AgeWorldQueryString)
     
     
     elif '-' in currItem: #age range
@@ -133,6 +144,11 @@ for currItem in MYITEMS:
         MYINPUT_age = currItem.replace('-', ' AND ')
         itemCount += 1
         AgeFilterString = f'age {myOperator} {MYINPUT_age}'
+        rangeVals = currItem.split("-")
+        myRange = range (int(rangeVals[0]),(int(rangeVals[1])+1))
+        myString = " + ".join([f'"{item}"' for item in myRange])
+        AgeWorldQueryString = f', {myString}'
+        
     
 
     elif currItem.isdigit(): # exact age
@@ -140,7 +156,10 @@ for currItem in MYITEMS:
         MYINPUT_age = currItem
         itemCount += 1
         AgeFilterString = f'age {myOperator} {MYINPUT_age}'
-    
+        AgeWorldQueryString = f',"{currItem}"'
+
+
+        
     elif 'OR' in currItem and has_numbers (currItem): # OR -checks if numbers because of Oregon :) 
         MYINPUT_OR = currItem.replace('OR', '')
         MYINPUT_OR = float(MYINPUT_OR)
@@ -305,6 +324,7 @@ def queryCensus ():
                 
         ORblock = f"{ORcheck}-{DIScheck}-{MAFcheck}"
         if MYINPUT_OR and MYINPUT_MAF and MYINPUT_DIS:
+            
             predictedCarriers, ORstatement = predictCarriers (
                 population=myFinalResult, 
                 MAF=MYINPUT_MAF, 
@@ -312,10 +332,12 @@ def queryCensus ():
                 DiseasePrevalence=MYINPUT_DIS)
             
             ORblock = f"CALCULATING on {myFinalResult}"
-
+            
+    
     # WORLD RESULTS
-    WorldQueryString = f"""SELECT Area, Total
+    WorldQueryString = f"""SELECT Area{AgeWorldQueryString} 
         FROM worldPOP WHERE Area IN ('EUROPE', 'WORLD','AFRICA','ASIA','NORTHERN AMERICA','LATIN AMERICA AND THE CARIBBEAN','OCEANIA') ORDER BY Total DESC"""
+    
     
     cursor.execute(WorldQueryString)
     rs_EU = cursor.fetchall()
@@ -333,9 +355,7 @@ def queryCensus ():
         "title": outputString,
         "subtitle": subtitleString,
         "arg": f"{outputString}\n{subtitleString}",
-        "variables": {"ORstatement": ORstatement,
-        "POPstatement": f"{outputString} ({subtitleString})"
-        },
+        
         
         "icon": {   
         
@@ -351,9 +371,9 @@ def queryCensus ():
             myStateIcon = f'icons/{r_EU[0]}.png'
             
             result["items"].append({
-                    "title": f"{finalWorld:,} {PercentString}",
+                    "title": f"{finalWorld:,} {PercentString}{AgeString}",
                     "subtitle": r_EU[0],
-                    
+                     
                     "icon": {   
                     
                     "path": myStateIcon
@@ -363,7 +383,10 @@ def queryCensus ():
                     })
             
                     
-
+        result["variables"] = {
+            "ORstatement": ORstatement,
+            "POPstatement": f"{outputString} ({subtitleString})"
+            }
         print (json.dumps(result))
 
     
@@ -374,6 +397,7 @@ def queryCensus ():
             "title": "No matches",
             "subtitle": "Try a different query",
             "arg": "",
+            
             "icon": {
                 "path": "icons/Warning.png"
                 }
