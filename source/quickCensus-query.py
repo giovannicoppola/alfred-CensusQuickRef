@@ -4,7 +4,7 @@
 a script to query and make calculations on demographic data, with a function to calculate 
 carriers if OR, disease, and MAF are provided. 
 
-New York – Overcast ☁️   🌡️+25°F (feels +16°F, 80%) 🌬️↓6mph 🌔&m Wed Feb  1 07:15:58 2023
+Overcast ☁️   🌡️+25°F (feels +16°F, 80%) 🌬️↓6mph 🌔&m Wed Feb  1 07:15:58 2023
 W5Q1 – 32 ➡️ 332 – 266 ❇️ 98
 
 """
