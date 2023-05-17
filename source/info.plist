@@ -4,6 +4,8 @@
 <dict>
 	<key>bundleid</key>
 	<string>giovanni-quickcensus</string>
+	<key>category</key>
+	<string>myWorkflows</string>
 	<key>connections</key>
 	<dict>
 		<key>5CD00C6E-6621-45B2-9F71-286DF07641D2</key>
