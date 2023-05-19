@@ -6,12 +6,19 @@
 
 import os
 import sys
+import zipfile
 
-INDEX_DB = '../bigFiles/index.db'
-DATA_FILE_US = '../bigFiles/pcen_v2020_y20.sas7bdat'
+WF_DATA = os.getenv('alfred_workflow_data')
+INDEX_DB = WF_DATA + '/index.db'
+
+
+
 UStotPop = 329484123
 
-DATA_FILE_WORLD = "../bigFiles/WPP2022_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.csv"
+
+
+if not os.path.exists(WF_DATA):
+    os.makedirs(WF_DATA)
 
 
 def log(s, *args):
@@ -23,3 +30,26 @@ def log(s, *args):
 def logF(log_message, file_name):
     with open(file_name, "a") as f:
         f.write(log_message + "\n")
+
+
+
+
+
+def checkDatabase():
+    
+    DB_ZIPPED = 'index.db.zip'
+    
+    if os.path.exists(DB_ZIPPED):  # there is a zipped database: distribution version
+        log ("found distribution database, extracting")
+        with zipfile.ZipFile(DB_ZIPPED, "r") as zip_ref:
+            zip_ref.extractall(WF_DATA)
+        os.remove (DB_ZIPPED)
+    elif os.path.exists('index.db'):  # there is a new version, possibly rebuilt via script: replace the version in DATA
+        os.rename('index.db', INDEX_DB)
+
+
+
+
+checkDatabase()
+
+

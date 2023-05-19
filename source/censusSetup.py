@@ -1,7 +1,7 @@
 #!/usr/bin/python3 
 # giovanni
 # Saturday, January 28, 2023
-# New York – Overcast ☁️   🌡️+33°F (feels +24°F, 69%) 🌬️↗6mph 🌓&m Sat Jan 28 09:00:37 2023
+# Overcast ☁️   🌡️+33°F (feels +24°F, 69%) 🌬️↗6mph 🌓&m Sat Jan 28 09:00:37 2023
 # W4Q1 – 28 ➡️ 336 – 262 ❇️ 102
 
 """
@@ -27,8 +27,9 @@ import pandas as pd
 import sqlite3
 import os
 
-from config import INDEX_DB, log, logF, DATA_FILE_US, DATA_FILE_WORLD
-
+from config import INDEX_DB, log, logF
+DATA_FILE_US = '../bigFiles/pcen_v2020_y20.sas7bdat'
+DATA_FILE_WORLD = "../bigFiles/WPP2022_POP_F01_1_POPULATION_SINGLE_AGE_BOTH_SEXES.csv"
 
 
 # initializing the log file    

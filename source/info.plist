@@ -12,7 +12,40 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
+				<string>903F77B2-0D75-4DCF-A26E-9839C4A2C4EE</string>
+				<key>modifiers</key>
+				<integer>262144</integer>
+				<key>modifiersubtext</key>
+				<string>Copy this to clipboard</string>
+				<key>vitoclose</key>
+				<true/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
 				<string>FE8CD9D9-4C7E-4018-9A7C-5B39FE909D5B</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>B6323BF9-7848-4B5E-93FB-902E02AB0C0A</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Copy entire output to clipboard</string>
+				<key>vitoclose</key>
+				<true/>
+			</dict>
+		</array>
+		<key>6C9076A5-38AC-4793-B46F-0D3F7E3D2961</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>5CD00C6E-6621-45B2-9F71-286DF07641D2</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -25,13 +58,114 @@
 	<key>createdby</key>
 	<string>giovanni</string>
 	<key>description</key>
-	<string></string>
+	<string>A Workflow to query and make calculations on demographic data</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
 	<string>QuickCensus</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>autopaste</key>
+				<true/>
+				<key>clipboardtext</key>
+				<string>{var:mySingleOutput}
+</string>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
+				<key>transient</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>903F77B2-0D75-4DCF-A26E-9839C4A2C4EE</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>{var:mainkeyword}</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string></string>
+				<key>script</key>
+				<string>python3 quickCensus-query.py "$1"
+</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Query demographic data</string>
+				<key>title</key>
+				<string>Quick Census</string>
+				<key>type</key>
+				<integer>5</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>5CD00C6E-6621-45B2-9F71-286DF07641D2</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>action</key>
+				<integer>0</integer>
+				<key>argument</key>
+				<integer>0</integer>
+				<key>focusedappvariable</key>
+				<false/>
+				<key>focusedappvariablename</key>
+				<string></string>
+				<key>hotkey</key>
+				<integer>46</integer>
+				<key>hotmod</key>
+				<integer>1835008</integer>
+				<key>hotstring</key>
+				<string>M</string>
+				<key>leftcursor</key>
+				<false/>
+				<key>modsmode</key>
+				<integer>0</integer>
+				<key>relatedAppsMode</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.hotkey</string>
+			<key>uid</key>
+			<string>6C9076A5-38AC-4793-B46F-0D3F7E3D2961</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -55,81 +189,104 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>alfredfiltersresults</key>
-				<false/>
-				<key>alfredfiltersresultsmatchmode</key>
-				<integer>0</integer>
-				<key>argumenttreatemptyqueryasnil</key>
-				<false/>
-				<key>argumenttrimmode</key>
-				<integer>0</integer>
-				<key>argumenttype</key>
-				<integer>1</integer>
-				<key>escaping</key>
-				<integer>102</integer>
-				<key>keyword</key>
-				<string>!p</string>
-				<key>queuedelaycustom</key>
-				<integer>3</integer>
-				<key>queuedelayimmediatelyinitially</key>
+				<key>autopaste</key>
 				<true/>
-				<key>queuedelaymode</key>
-				<integer>0</integer>
-				<key>queuemode</key>
-				<integer>1</integer>
-				<key>runningsubtext</key>
-				<string></string>
-				<key>script</key>
-				<string>export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
-myQuery="$1"
-
-#if [[ ${#myQuery} -gt 1 ]]
-#then
-	python3 quickCensus-query.py "$1"
-#else
-#cat &lt;&lt; EOB
-#	{"items": [
-#		{
-#			"title": "❗Enter 2 characters at least",
-#			"subtitle": "length: ${#myQuery} (${myQuery})"
-#
-#			}
-# ]}
-# EOB
-# fi
-
+				<key>clipboardtext</key>
+				<string>{var:myTextOutput}
 </string>
-				<key>scriptargtype</key>
-				<integer>1</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>subtext</key>
-				<string></string>
-				<key>title</key>
-				<string>Quick Census</string>
-				<key>type</key>
-				<integer>5</integer>
-				<key>withspace</key>
-				<true/>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
+				<key>transient</key>
+				<false/>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
+			<string>alfred.workflow.output.clipboard</string>
 			<key>uid</key>
-			<string>5CD00C6E-6621-45B2-9F71-286DF07641D2</string>
+			<string>B6323BF9-7848-4B5E-93FB-902E02AB0C0A</string>
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string></string>
+	<string># alfred-CensusQuickRef
+A Workflow to query and make calculations on demographic data, with a function to calculate carriers if odds ratio, disease, and minor allele frequency are provided. 
+
+![](alfred-CensusQuickRef.png)
+
+# Basic Usage 📖
+
+- Launch with keyword (default: `!p`) or hotkey.
+- Enter characters below to subset the total population based on %, age, sex, US state, ancestry. 
+
+## Subsets 🔣 (World regions, or individual country)
+
+### Slice 🍰
+- `%` percent of the population
+- `1:` frequency per 100,000
+
+### Age 🧙
+- `nn` exact age
+- `nn+` some age and above
+- `nn-` some age and below
+- `nn-nn` some age range
+
+## Other criteria (🇺🇸 only)
+### Sex ♂️♀️ 
+- `M` male
+- `F` female
+
+### US state 🇺🇸
+- `XX` US state abbreviation
+
+### Ancestry 👤
+- `EUR` European
+- `AMR` American Indian
+- `AAA` African-American
+- `ASI` Asian
+
+- `H` Hispanic (can be alone or added to any of the above)
+
+
+## Calculating the number of expected carriers 🧮
+- `ORxx` OR (Odds Ratio) followed by a number
+- `MAFxx` MAF (Minor allele frequency), followed by a number
+- `DISxx` Disease frequency, followed by a number
+- Note: `OR`, `MAF`, and `DIS` are case-sensitive
+
+
+# Limitations &amp; known issues ⚠️
+
+- None for now, but I have not done extensive testing, let me know if you see anything!
+- The carrier estimate is just a rough estimate and makes a number of assumptions and approximations.</string>
 	<key>uidata</key>
 	<dict>
 		<key>5CD00C6E-6621-45B2-9F71-286DF07641D2</key>
 		<dict>
 			<key>xpos</key>
-			<real>405</real>
+			<real>435</real>
 			<key>ypos</key>
 			<real>235</real>
+		</dict>
+		<key>6C9076A5-38AC-4793-B46F-0D3F7E3D2961</key>
+		<dict>
+			<key>xpos</key>
+			<real>190</real>
+			<key>ypos</key>
+			<real>235</real>
+		</dict>
+		<key>903F77B2-0D75-4DCF-A26E-9839C4A2C4EE</key>
+		<dict>
+			<key>xpos</key>
+			<real>690</real>
+			<key>ypos</key>
+			<real>50</real>
+		</dict>
+		<key>B6323BF9-7848-4B5E-93FB-902E02AB0C0A</key>
+		<dict>
+			<key>xpos</key>
+			<real>690</real>
+			<key>ypos</key>
+			<real>400</real>
 		</dict>
 		<key>FE8CD9D9-4C7E-4018-9A7C-5B39FE909D5B</key>
 		<dict>
@@ -140,8 +297,34 @@ myQuery="$1"
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>!p</string>
+				<key>placeholder</key>
+				<string></string>
+				<key>required</key>
+				<true/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>Keyword to launch the workflow</string>
+			<key>label</key>
+			<string>Main Keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>mainkeyword</string>
+		</dict>
+	</array>
+	<key>variablesdontexport</key>
 	<array/>
+	<key>version</key>
+	<string>0.1</string>
 	<key>webaddress</key>
-	<string></string>
+	<string>https://github.com/giovannicoppola/alfred-CensusQuickRef</string>
 </dict>
 </plist>

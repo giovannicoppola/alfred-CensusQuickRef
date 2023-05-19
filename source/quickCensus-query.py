@@ -55,8 +55,6 @@ MYINPUT_DIS = '' #value for disease prevalence
 DISString = ''
 
 OregonFlag = False # needed to disambiguate odds ratio and Oregon (or any state entered)
-#StartWorldAge = 9 #start column for age (age = 0)
-#EndWorldAge = 108 #end column for age (age = 100+)
 AgeWorldQueryString = ', Total'
 
 
@@ -97,8 +95,17 @@ def predictCarriers (population, MAF, OR, DiseasePrevalence):
     f"{ExpDA:,}/{pDis:,} ({percentDA:.{nonZeroDA}f}%) affected carriers "
     f"and {ExpCont:,}/{pControls:,} ({percentControl:.{nonZeroC}f}%) control carriers")
     
+    estimateStatement = (
+    f"~{ExpDA:,}/{pDis:,} ({percentDA:.{nonZeroDA}f}%) affected carriers "
+    f"and {ExpCont:,}/{pControls:,} ({percentControl:.{nonZeroC}f}%) control carriers")
     
-    return ExpDA, OR_statement
+    assumptionStatement = (
+    f"Assuming MAF: {MAF}, "
+    f"disease prevalence: {DiseasePrevalence}, " 
+    f"OR: {OR}, "
+    f"and population size: {population:,}")
+
+    return estimateStatement, assumptionStatement, OR_statement
 
 
 
@@ -125,7 +132,7 @@ for currItem in MYITEMS:
         myRange = range ((int(MYINPUT_age)+1),88)
         myString = " + ".join([f'"{item}"' for item in myRange])
         AgeWorldQueryString = f', {myString}'
-        log (AgeWorldQueryString)
+        #log (AgeWorldQueryString)
     
     elif currItem[-1] == "-": # some age or below
         myOperator = '<='
@@ -141,16 +148,25 @@ for currItem in MYITEMS:
     
     elif '-' in currItem: #age range
         myOperator = myOperatorString = ' between '
-        MYINPUT_age = currItem.replace('-', ' AND ')
         itemCount += 1
-        AgeFilterString = f'age {myOperator} {MYINPUT_age}'
+        
         rangeVals = currItem.split("-")
-        myRange = range (int(rangeVals[0]),(int(rangeVals[1])+1))
+        myBot = int(rangeVals[0])
+        myTop = int(rangeVals[1])
+        
+        if myBot > myTop:
+            myBot = int(rangeVals[1])
+            myTop = int(rangeVals[0])
+        
+        MYINPUT_age = f"{myBot} AND {myTop}"    
+        AgeFilterString = f'age {myOperator} {MYINPUT_age}'
+        
+        myRange = range (myBot,(myTop+1))
+        
         myString = " + ".join([f'"{item}"' for item in myRange])
         AgeWorldQueryString = f', {myString}'
         
     
-
     elif currItem.isdigit(): # exact age
         myOperator = myOperatorString = '='
         MYINPUT_age = currItem
@@ -183,7 +199,9 @@ for currItem in MYITEMS:
         #if MYINPUT_factor >= 1:
         MYINPUT_factor = MYINPUT_factor/100
 
-    elif ':' in currItem: # prevalence per 100k
+    
+
+    elif ':' in currItem: # frequency per 100k
         MYINPUT_factor = currItem.replace(':', '')
         MYINPUT_factor = (int(MYINPUT_factor))*0.00001
         PercentString = f"({currItem}100,000)"
@@ -233,7 +251,7 @@ for currItem in MYITEMS:
             myFinalMap = [i for i in myFinalMap if i not in hisMap[currItem.casefold()]]
         
         else:
-            CountryFilterString = f'Area LIKE "{currItem}%"'
+            CountryFilterString = f'Area LIKE "%{currItem}%"'
             
     
 
@@ -322,68 +340,105 @@ def queryCensus ():
         else:
             MAFcheck = f"MAF: ❌"
                 
-        ORblock = f"{ORcheck}-{DIScheck}-{MAFcheck}"
+        ORblock = f" {ORcheck}-{DIScheck}-{MAFcheck}"
         if MYINPUT_OR and MYINPUT_MAF and MYINPUT_DIS:
             
-            predictedCarriers, ORstatement = predictCarriers (
+            predictedCarriers, assumptionsSt, ORstatement = predictCarriers (
                 population=myFinalResult, 
                 MAF=MYINPUT_MAF, 
                 OR= MYINPUT_OR,
                 DiseasePrevalence=MYINPUT_DIS)
             
-            ORblock = f"CALCULATING on {myFinalResult}"
+            #ORblock = f"CALCULATING on {myFinalResult:,}"
+            ORblock = ""
+             #### COMPILING OUTPUT    
+            result["items"].append({
+            "title": predictedCarriers,
+            "subtitle": assumptionsSt,
+            "arg": f"{ORstatement}",
             
+            "variables": {
+                            "mySingleOutput": ORstatement
+                        },
+            "icon": {   
+            
+            "path": myStateIcon
+                }
+            
+
+            })
+
     
     # WORLD RESULTS
-    WorldQueryString = f"""SELECT Area{AgeWorldQueryString} 
-        FROM worldPOP WHERE Area IN ('EUROPE', 'WORLD','AFRICA','ASIA','NORTHERN AMERICA','LATIN AMERICA AND THE CARIBBEAN','OCEANIA') ORDER BY Total DESC"""
-    
+    if not CountryFilterString:
+        WorldQueryString = f"""SELECT Area{AgeWorldQueryString}, [ISO2 Alpha-code], Total
+            FROM worldPOP WHERE Area IN ('EUROPE', 'WORLD','AFRICA','ASIA','NORTHERN AMERICA','LATIN AMERICA AND THE CARIBBEAN','OCEANIA') ORDER BY Total DESC"""
+
+    else:
+        WorldQueryString = f"""SELECT Area{AgeWorldQueryString}, [ISO2 Alpha-code], Total
+            FROM worldPOP WHERE {CountryFilterString} ORDER BY Total DESC"""
+        
+        
     
     cursor.execute(WorldQueryString)
     rs_EU = cursor.fetchall()
-
+    myTextOutput = ''
     
     if (rs):
                 
         outputString = f"{myStateString} {myFinalResult:,.0f} {PercentString} {AgeString} {MYINPUT_race.upper()} {MYINPUT_sex.upper()} {MYINPUT_latino.upper()}"
-        subtitleString = f"{percentUS:.1f}% of 🇺🇸 pop {percentSubtitle} {ORblock}"
-            
-                 
-        
-        #### COMPILING OUTPUT    
-        result["items"].append({
-        "title": outputString,
-        "subtitle": subtitleString,
-        "arg": f"{outputString}\n{subtitleString}",
-        
-        
-        "icon": {   
-        
-        "path": myStateIcon
-    }
-        
-
-        })
-        
-        
-        for r_EU in rs_EU:
-            finalWorld = round((r_EU[1]*1000) * MYINPUT_factor)
-            myStateIcon = f'icons/{r_EU[0]}.png'
-            
+        subtitleString = f"{percentUS:.1f}% of 🇺🇸 pop {percentSubtitle}{ORblock}"
+        myTextOutput = f"{myTextOutput}\n{outputString} – {percentUS:.1f}% of 🇺🇸 pop {percentSubtitle}"
+                
+        if not CountryFilterString:
+            #### COMPILING OUTPUT    
             result["items"].append({
-                    "title": f"{finalWorld:,} {PercentString}{AgeString}",
-                    "subtitle": r_EU[0],
-                     
-                    "icon": {   
-                    
-                    "path": myStateIcon
-                }
-                    
-
-                    })
+            "title": outputString,
+            "subtitle": subtitleString,
+            "arg": f"{outputString}\n{subtitleString}",
             
+            "variables": {
+                            'mySingleOutput': f"{outputString} – {percentUS:.1f}% of 🇺🇸 pop {percentSubtitle}"
+                        },
+            "icon": {   
+            
+            "path": myStateIcon
+                }
+            
+
+            })
+
+        
+        if not (MYINPUT_state or MYINPUT_race or MYINPUT_sex or MYINPUT_latino):
+            for r_EU in rs_EU:
+                finalWorld = round((r_EU[1]*1000) * MYINPUT_factor)
+                myCountryTot = int(r_EU[3])*1000
+                myCountryPerc = (finalWorld/myCountryTot)*100
+                    
+                if CountryFilterString:
+                    myStateIcon = f'icons/world_flags/{r_EU[2].casefold()}.png'
+                else:
+                    myStateIcon = f'icons/{r_EU[0]}.png'
+                myWorldString = f"{finalWorld:,} {PercentString} {AgeString}"
+                myTextOutput = f"{myTextOutput}\n{r_EU[0]}: {myWorldString} – {myCountryPerc:.1f}% of population"
+                
+                result["items"].append({
+                        "title": myWorldString,
+                        "subtitle": f"{r_EU[0]} – {myCountryPerc:.1f}% of pop",
+                        "variables": {
+                            'mySingleOutput': f"{r_EU[0]}: {myWorldString} – {myCountryPerc:.1f}% of population"
+                        },
+                        "icon": {   
+                        
+                        "path": myStateIcon
+                    }
+                        
+
+                        })
+                
                     
         result["variables"] = {
+            'myTextOutput': myTextOutput,
             "ORstatement": ORstatement,
             "POPstatement": f"{outputString} ({subtitleString})"
             }
@@ -392,7 +447,7 @@ def queryCensus ():
     
 
     
-    if MYINPUT and not rs:
+    if MYINPUT and not (rs or resultErr):
         resultErr= {"items": [{
             "title": "No matches",
             "subtitle": "Try a different query",
@@ -418,7 +473,3 @@ if __name__ == '__main__':
 
 
 
-
-""" notes
-going through the entire 4M records: 3.4 sec (and then it takes some time to load the JSON output)
-"""
