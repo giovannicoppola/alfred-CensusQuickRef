@@ -7,7 +7,7 @@ An [Alfred](https://www.alfredapp.com/) Workflow to query and make calculations 
 src="https://img.shields.io/github/downloads/giovannicoppola/alfred-CensusQuickRef/total?color=purple&label=Downloads"><br/>
 </a>
 
-![](images/alfred-CensusQuickRef.gif)
+![](images/alfred-censusquickref.gif)
 
 <!-- MarkdownTOC autolink="true" bracket="round" depth="3" autoanchor="true" -->
 
