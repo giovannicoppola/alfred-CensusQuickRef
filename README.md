@@ -94,7 +94,7 @@ src="https://img.shields.io/github/downloads/giovannicoppola/alfred-CensusQuickR
 <h1 id="acknowledgments">Acknowledgments 😀</h1>
 
 ### Icons: 
-- [Main icon](https://www.flaticon.com/free-icon/census_8709706)
+- [Main icon](https://www.flaticon.com/free-icon/census_8709706) created by noomtah – Flaticon
 - [European Union] (https://www.flaticon.com/free-icon/european_4628667)
 - [Africa](https://thenounproject.com/icon/africa-146421/)
 - [flags](https://flagpedia.net)
