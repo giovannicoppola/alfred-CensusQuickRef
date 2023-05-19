@@ -42,6 +42,9 @@ src="https://img.shields.io/github/downloads/giovannicoppola/alfred-CensusQuickR
 
 - Launch with keyword (default: `!p`) or hotkey.
 - Enter characters below to subset the total population based on %, age, sex, US state, ancestry. 
+- ↩️ will copy the current row to clipboard 
+- ^↩️ will copy the current row to clipboard and paste to frontmost application
+- ⌘↩️ will copy entire output to clipboard and paste to frontmost application
 
 ## Subsets 🔣 (World regions, or individual country)
 

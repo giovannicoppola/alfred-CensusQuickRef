@@ -16,7 +16,7 @@
 				<key>modifiers</key>
 				<integer>262144</integer>
 				<key>modifiersubtext</key>
-				<string>Copy this to clipboard</string>
+				<string>Copy this result to clipboard and paste to the frontmost application</string>
 				<key>vitoclose</key>
 				<true/>
 			</dict>
@@ -36,7 +36,7 @@
 				<key>modifiers</key>
 				<integer>1048576</integer>
 				<key>modifiersubtext</key>
-				<string>Copy entire output to clipboard</string>
+				<string>Copy entire output to clipboard and paste to frontmost application</string>
 				<key>vitoclose</key>
 				<true/>
 			</dict>
@@ -170,10 +170,10 @@
 			<key>config</key>
 			<dict>
 				<key>autopaste</key>
-				<true/>
+				<false/>
 				<key>clipboardtext</key>
-				<string>{var:POPstatement}
-{var:ORstatement}</string>
+				<string>{var:mySingleOutput}
+</string>
 				<key>ignoredynamicplaceholders</key>
 				<false/>
 				<key>transient</key>
@@ -217,6 +217,10 @@ A Workflow to query and make calculations on demographic data, with a function t
 
 - Launch with keyword (default: `!p`) or hotkey.
 - Enter characters below to subset the total population based on %, age, sex, US state, ancestry. 
+- ↩️ will copy the current row to clipboard 
+- ^↩️ will copy the current row to clipboard and paste to frontmost application
+- ⌘↩️ will copy entire output to clipboard and paste to frontmost application
+
 
 ## Subsets 🔣 (World regions, or individual country)
 
@@ -263,37 +267,37 @@ A Workflow to query and make calculations on demographic data, with a function t
 		<key>5CD00C6E-6621-45B2-9F71-286DF07641D2</key>
 		<dict>
 			<key>xpos</key>
-			<real>435</real>
+			<real>620</real>
 			<key>ypos</key>
-			<real>235</real>
+			<real>320</real>
 		</dict>
 		<key>6C9076A5-38AC-4793-B46F-0D3F7E3D2961</key>
 		<dict>
 			<key>xpos</key>
-			<real>190</real>
+			<real>375</real>
 			<key>ypos</key>
-			<real>235</real>
+			<real>320</real>
 		</dict>
 		<key>903F77B2-0D75-4DCF-A26E-9839C4A2C4EE</key>
 		<dict>
 			<key>xpos</key>
-			<real>690</real>
+			<real>875</real>
 			<key>ypos</key>
-			<real>50</real>
+			<real>135</real>
 		</dict>
 		<key>B6323BF9-7848-4B5E-93FB-902E02AB0C0A</key>
 		<dict>
 			<key>xpos</key>
-			<real>690</real>
+			<real>875</real>
 			<key>ypos</key>
-			<real>400</real>
+			<real>485</real>
 		</dict>
 		<key>FE8CD9D9-4C7E-4018-9A7C-5B39FE909D5B</key>
 		<dict>
 			<key>xpos</key>
-			<real>690</real>
+			<real>875</real>
 			<key>ypos</key>
-			<real>235</real>
+			<real>320</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
@@ -323,7 +327,7 @@ A Workflow to query and make calculations on demographic data, with a function t
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>0.1</string>
+	<string>0.1.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/giovannicoppola/alfred-CensusQuickRef</string>
 </dict>
