@@ -6,6 +6,10 @@ An [Alfred](https://www.alfredapp.com/) Workflow to query and make calculations 
 <img alt="Downloads"
 src="https://img.shields.io/github/downloads/giovannicoppola/alfred-CensusQuickRef/total?color=purple&label=Downloads"><br/>
 </a>
+<a href="https://alfred.app/workflows/giovannicoppola/quickcensus/">
+<img alt="Gallery Downloads"
+src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fgiovannicoppola%2Falfred-gallery-downloads%2Fmain%2Fdownloads.json&query=%24.quickcensus%5B0%5D.display&label=Gallery%20Downloads&color=blue&logo=alfred"><br/>
+</a>
 
 ![](images/alfred-censusquickref.gif)
 
