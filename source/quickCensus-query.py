@@ -19,7 +19,7 @@ import json
 from config import INDEX_DB, log, UStotPop
 
 
-MYINPUT = sys.argv[1]
+MYINPUT = sys.argv[1] if len(sys.argv) > 1 else ''
 
 MYITEMS = MYINPUT.split()
 MYITEMS = [*set(MYITEMS)] #eliminating exact duplicates
@@ -56,6 +56,8 @@ DISString = ''
 
 OregonFlag = False # needed to disambiguate odds ratio and Oregon (or any state entered)
 AgeWorldQueryString = ', Total'
+
+resultErr = None # set to an Alfred error payload if a query fails / matches nothing
 
 
 # loading the fips codes for states
@@ -129,8 +131,10 @@ for currItem in MYITEMS:
         MYINPUT_age = currItem.replace('+', '')
         itemCount += 1
         AgeFilterString = f'age {myOperator} {MYINPUT_age}'
-        myRange = range ((int(MYINPUT_age)+1),88)
-        myString = " + ".join([f'"{item}"' for item in myRange])
+        # include the boundary age itself (US side uses inclusive `>= N`) and every
+        # bucket up to the world data's top column `100+`, so `N+` isn't undercounted
+        myRange = range (int(MYINPUT_age),100)
+        myString = " + ".join([f'"{item}"' for item in myRange] + ['"100+"'])
         AgeWorldQueryString = f', {myString}'
         #log (AgeWorldQueryString)
     
@@ -189,7 +193,7 @@ for currItem in MYITEMS:
     elif 'DIS' in currItem and has_numbers (currItem): 
         MYINPUT_DIS = currItem.replace('DIS', '')
         MYINPUT_DIS = float(MYINPUT_DIS)
-        DISString = f"(MAF: {MYINPUT_DIS})"
+        DISString = f"(DIS: {MYINPUT_DIS})"
         
     
     elif '%' in currItem: # percent
@@ -256,6 +260,7 @@ for currItem in MYITEMS:
     
 
 def queryCensus ():
+    global resultErr # so the "no matches" guard below sees the module-level value
     result = {"items": [], "variables":{}}
     whereClause = ''
     myStateIcon = ''

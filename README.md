@@ -114,6 +114,7 @@ src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubuserc
 	
 <h1 id="changelog">Changelog 🧰</h1>
 
+- 2026-08-09: version 0.1.3, code review — fixed a crash on any query that returned no rows (the "No matches" message threw an `UnboundLocalError` instead of showing); guarded an empty query (was an `IndexError`); fixed `N+` age queries undercounting the World/region figures (they excluded the boundary age and everyone 88+, so e.g. *20+* dropped ~3% of the world population); corrected a mislabeled disease-prevalence tag
 - 05-19-2023: version 0.1
 
 
